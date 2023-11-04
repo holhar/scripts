@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Synchronizes 'Documents', 'Pictures', 'Videos', and 'Music' [SOURCE] to an
+# external hard drive [TARGET], and leaves no differences between the locations.
+# If rsync finds a file that has been changed, created, or deleted in SOURCE, it
+# will reflect those same changes to TARGET. I.e., if rsync finds that TARGET
+# has a file, that SOURCE does not, it will delete it on TARGET.
+
+#################################################################
+# Sanity Check: command availability                            #
+#################################################################
+if ! command -v rsync >/dev/null 2>&1; then
+	printf "\033[31m ERROR: Command 'rsync' is not available \033[0m\n"
+	exit 1;
+fi
+
+#################################################################
+# Help                                                          #
+#################################################################
+Help() {
+	printf "Backing up and synchronizing changes of the directories\n'Documents', 'Pictures', 'Videos', and 'Music' to external hard drive.\n\n"
+	printf "Syntax: backupDocs [-b]\n"
+	printf "arguments:\n"
+	printf "b	backup to which the data should be synchronized to; is either 1, 2, or 3.\n"
+	exit 0;
+}
+
+#################################################################
+# Get options                                                   #
+#################################################################
+while [[ $# -gt 0 ]]; do
+	case $1 in
+		-h|--help) # display Help
+			Help
+			shift # past argument
+			shift # past value
+			exit 0;;
+    	-b) # Enter backup number
+			backupNumber=$2
+			shift # past argument
+			shift # past value
+			;;
+   	    -*|--*) # Invalid option
+			printf "\033[31m ERROR: Invalid option \033[0m\n"
+			exit 1;;
+  esac
+done
+
+
+#################################################################
+# Main		                                                    #
+#################################################################
+if [[ "$backupNumber" == "1" ]]; then
+	hdd="BACKUP1"
+elif [[ "$backupNumber" == "2" ]]; then
+	hdd="BACKUP2"
+elif [[ "$backupNumber" == "3" ]]; then
+	hdd="BACKUP3"
+else
+	printf "\033[31m ERROR: given 'backup number' must be 1, 2, or 3 \033[0m\n"
+	exit 1
+fi
+
+printf "\033[37m ${hdd} Starting.... \033[0m\n"
+rm /home/holger/LAST_${hdd}*
+
+# Used rsync options: 
+# -a = recursive (recurse into directories), 
+#      links (copy symlinks as symlinks), perms (preserve
+#      permissions), times (preserve modification times),
+#      group (preserve group), owner (preserve owner),
+#      preserve device files, and preserve special files.
+# -v = verbose. The reason I think verbose is
+#      important is so you can see exactly what rsync is
+#      backing up. Think about this: What if your hard
+#      drive is going bad, and starts deleting files
+#      without your knowledge, then you run your rsync
+#      script and it pushes those changes to your backups,
+#      thereby deleting all instances of a file that you
+#      did not want to get rid of?
+# –delete = This tells rsync to delete any files
+#      that are in Directory2 that aren’t in Directory1.
+#      If you choose to use this option, I recommend also
+#      using the verbose options, for reasons mentioned above.
+rsync -av --delete /home/holger/Documents/media/holger/$hdd
+rsync -av --delete /home/holger/Pictures/media/holger/$hdd
+rsync -av --delete /home/holger/Videos/media/holger/$hdd
+rsync -av --delete /home/holger/Music/media/holger/$hdd
+
+
+backupDate=`date +"%Y-%m-%d"`
+fileName=$(echo LAST_${hdd}_${backupDate})
+touch /home/holger/$fileName
+
+printf "\033[32m ${hdd} successfully finished \033[0m\n";
+exit 0
