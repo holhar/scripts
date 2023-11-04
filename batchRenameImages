@@ -1,0 +1,88 @@
+#!/bin/bash
+
+#################################################################
+# Sanity Check: command availability                            #
+#################################################################
+if ! command -v mv >/dev/null 2>&1; then
+	printf "\033[31m ERROR: Command 'mv' is not available \033[0m\n"
+    exit 1;
+fi
+
+#################################################################
+# Help                                                          #
+#################################################################
+Help() {
+    printf "Batch rename image files inside a directory by their given dir name and add file counter.\n\n"
+    printf "Syntax: batchRename [-d|n|s]\n"
+    printf "arguments:\n"
+	printf "d	Directory in which the files are located.\n"
+	printf "n	The name the files should be renamed to.\n"
+	printf "s	The file suffix to be used for the files.\n"
+    exit 0;
+}
+
+#################################################################
+# Get options                                                   #
+#################################################################
+while getopts ":h:d:n:s:" option; do
+	case $option in
+		h) # display Help
+			Help
+			exit 0;;
+		d) # Enter a directory path
+			directoryPath=$OPTARG;;
+		n) # Enter a name for the files
+			name=$OPTARG;;
+		s) # Enter the file suffix
+			suffix=$OPTARG;;
+	   \?) # Invalid option
+	   		printf "\033[31m ERROR: Invalid option \033[0m\n"
+			exit 1;;
+	esac
+done
+
+#################################################################
+# Sanity Check: arguments present                               #
+#################################################################
+if [ "$#" -ne 6 ]; then
+	printf "\033[31m ERROR: All arguments must be present \033[0m\n"
+    exit 1
+fi
+
+
+#################################################################
+# Main		                                                    #
+#################################################################
+# Alternative: take dir name as name for the files (only applicable for a fixed dir depth)
+# name=$(echo $directoryPath| cut -d'/' -f 6)
+
+printf "directoryPath: $directoryPath\n"
+printf "name: $name\n"
+printf "suffix: $suffix\n"
+
+printf "Changing into directory: ${directoryPath}\n"
+cd $directoryPath
+
+counter=0
+
+for i in *
+do
+	counter=$((counter+1))
+
+	# apply left-side padding for numbers
+	if [ "$counter" -lt "10" ];
+	then
+		printf "\033[37m Renaming: '$i' -> '${name}_00${counter}.${suffix}' \033[0m\n"
+		mv "$i" "${name}_00${counter}.${suffix}"
+	elif [ "$counter" -lt "100" ];
+	then
+		printf "\033[37m Renaming: '$i' -> '${name}_0${counter}.${suffix}' \033[0m\n"
+		mv "$i" "${name}_0${counter}.${suffix}"
+	else
+		printf "\033[37m Renaming: '$i' -> '${name}_${counter}.${suffix}' \033[0m\n"
+		mv "$i" "${name}_${counter}.${suffix}"
+	fi
+done
+
+printf -- '\033[32m SUCCESSFULLY FINISHED \033[0m\n';
+exit 0

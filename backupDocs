@@ -82,10 +82,10 @@ rm /home/holger/LAST_${hdd}*
 #      that are in Directory2 that aren’t in Directory1.
 #      If you choose to use this option, I recommend also
 #      using the verbose options, for reasons mentioned above.
-rsync -av --delete /home/holger/Documents/media/holger/$hdd
-rsync -av --delete /home/holger/Pictures/media/holger/$hdd
-rsync -av --delete /home/holger/Videos/media/holger/$hdd
-rsync -av --delete /home/holger/Music/media/holger/$hdd
+rsync -av --delete /home/holger/Documents /media/holger/$hdd
+rsync -av --delete /home/holger/Pictures /media/holger/$hdd
+rsync -av --delete /home/holger/Videos /media/holger/$hdd
+rsync -av --delete /home/holger/Music /media/holger/$hdd
 
 
 backupDate=`date +"%Y-%m-%d"`
