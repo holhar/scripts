@@ -8,6 +8,6 @@
 #    The PID is then written to a file using > /path/to/app/pid.file
 #    nohup lets the java process run in the background even after the user is logged out.
 
-nohup java -jar /path/to/app/hello-world.jar > /path/to/log.txt 2>&1 &
+nohup java "$@" -jar /path/to/app/hello-world.jar > /path/to/log.txt 2>&1 &
 sleep 1
 cut -c 1-5 <<< $(jps|grep "qod.jar") > /home/holhar/opt/pid.file
