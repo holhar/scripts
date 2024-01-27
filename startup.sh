@@ -9,4 +9,5 @@
 #    nohup lets the java process run in the background even after the user is logged out.
 
 nohup java -jar /path/to/app/hello-world.jar > /path/to/log.txt 2>&1 &
-echo $! > /path/to/app/pid.file
+sleep 1
+cut -c 1-5 <<< $(jps|grep "qod.jar") > /home/holhar/opt/pid.file
